@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>sonos</title>
+	<link rel="stylesheet" href="./libs/element-ui/index.css">
+	<script src="./libs/vue.js"></script>
+	<script src="./libs/axios.min.js"></script>
+	<script src="./libs/element-ui/index.js"></script>
+</head>
+<body>
+	<div id="app">
+		房间：{{description.roomName}}
+		<br>
+		<br>
+		播放列表：
+		<div v-for="item in list">
+			{{item.artist}}: {{item.title}}
+		</div>
+		<br>
+		<br>
+		<el-button type="primary" @click="previous">上一首</el-button>
+		<el-button type="success" @click="play">播放</el-button>
+		<el-button type="primary" @click="next">下一首</el-button>
+		<br>
+		<br>
+		
+		<el-button type="warning" @click="pause">暂停</el-button>
+		<el-button type="danger" @click="stop">停止</el-button>
+		
+		<br>
+		<br>
+		<div class="block" style="width: 30%;">
+			<span class="demonstration">音量</span>
+			<el-slider v-model="volume" @change="changeVolume"></el-slider>
+		</div>
+	</div>
+
+	<script>
+		var HTTPURL = 'http://localhost:8099/'
+		var app = new Vue({
+			el: '#app',
+			data: {
+				devices: {},
+				description: {},
+				list: [],
+				isPlay: true,
+				isPause: false,
+				volume: 0,
+			},
+			created: function() {
+				this.getDeviceInfo();
+				this.getPlayList();
+				this.getVolume();
+			},
+			methods: {
+				getDeviceInfo: function() {
+					var _this = this;
+					axios.get(HTTPURL + 'deviceInfo').then(function(response) {
+						_this.devices = response.data;
+						for (let k in _this.devices) {
+							_this.description = _this.devices[k].description;
+						}
+					}).catch(function(err) {
+						console.log(err);
+					});
+				},
+				getPlayList: function() {
+					var _this = this;
+					axios.get(HTTPURL + 'list').then(function(response) {
+						_this.list = response.data.items;
+					}).catch(function(err) {
+						console.log(err);
+					});
+				},
+				getVolume: function() {
+					var _this = this;
+					axios.get(HTTPURL + 'getVolume').then(function(response) {
+						_this.volume = response.data.volume;
+					}).catch(function(err) {
+						console.log(err);
+					});
+				},
+				previous: function() {
+					axios.get(HTTPURL + 'previous').then(function(response) {
+						console.log('previous', response.data);
+					}).catch(function(err) {
+						console.log(err);
+					});
+				},
+				next: function() {
+					axios.get(HTTPURL + 'next').then(function(response) {
+						console.log('next', response.data);
+					}).catch(function(err) {
+						console.log(err);
+					});
+				},
+				play: function() {
+					axios.get(HTTPURL + 'play').then(function(response) {
+						console.log('play', response.data);
+					}).catch(function(err) {
+						console.log(err);
+					});
+				},
+				pause: function() {
+					axios.get(HTTPURL + 'pause').then(function(response) {
+						console.log('pause', response.data);
+					}).catch(function(err) {
+						console.log(err);
+					});
+				},
+				stop: function() {
+					axios.get(HTTPURL + 'stop').then(function(response) {
+						console.log('stop', response.data);
+					}).catch(function(err) {
+						console.log(err);
+					});
+				},
+				changeVolume: function() {
+					let postBody = {
+						volume: this.volume.toString()
+					};
+					axios.post(HTTPURL + 'setVolume', postBody).then(function(response) {
+						console.log('setVolume', response.data);
+					}).catch(function(err) {
+						console.log(err);
+					});
+				}
+			}
+		})
+
+	</script>
+</body>
+</html>
